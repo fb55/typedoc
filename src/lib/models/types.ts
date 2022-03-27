@@ -978,7 +978,7 @@ export class ReflectionType extends Type {
         project: ProjectReflection
     ): ReflectionType {
         return new ReflectionType(
-            DeclarationReflection.fromObject(obj, project)
+            DeclarationReflection.fromObject(obj.declaration!, project)
         );
     }
 }
@@ -1241,9 +1241,7 @@ export class UnionType extends Type {
         obj: JSONOutput.UnionType,
         project: ProjectReflection
     ): UnionType {
-        return new UnionType(
-            obj.types.map((t) => Type.fromObject(t, project) as SomeType)
-        );
+        return new UnionType(obj.types.map((t) => Type.fromObject(t, project)));
     }
 }
 

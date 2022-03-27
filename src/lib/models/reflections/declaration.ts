@@ -305,8 +305,7 @@ export class DeclarationReflection extends ContainerReflection {
             TypeParameterReflection.fromObject(parameter, this)
         );
 
-        this.type =
-            object.type && (Type.fromObject(object.type, project) as SomeType);
+        this.type = object.type && Type.fromObject(object.type, project);
 
         this.signatures = object.signatures?.map((signature) =>
             SignatureReflection.fromObject(signature, this)

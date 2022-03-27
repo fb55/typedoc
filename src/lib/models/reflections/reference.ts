@@ -120,14 +120,15 @@ export class ReferenceReflection extends DeclarationReflection {
         };
     }
 
-    static fromObject(
-        object: JSONReferenceReflection,
+    static override fromObject(
+        object: JSONOutput.ReferenceReflection,
         parent: Reflection
     ): ReferenceReflection {
         return new ReferenceReflection(
             object.name,
-            object.target,
+            // TODO Lazily resolve this
+            parent.project.getReflectionById(object.target)!,
             parent
-        ).addJsonProps(object);
+        ).addJsonProps(object, parent);
     }
 }

@@ -1,4 +1,4 @@
-import { SomeType, ReflectionType, ReferenceType } from "../types";
+import { Type, SomeType, ReflectionType, ReferenceType } from "../types";
 import { Reflection, TraverseProperty, TraverseCallback } from "./abstract";
 import { ParameterReflection } from "./parameter";
 import { TypeParameterReflection } from "./type-parameter";

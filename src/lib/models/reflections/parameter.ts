@@ -59,7 +59,8 @@ export class ParameterReflection extends Reflection {
             parent
         );
         result.defaultValue = object.defaultValue;
-        result.type = Type.fromObject(object.type, parent) as SomeType;
+        result.type =
+            object.type && Type.fromObject(object.type, parent.project);
 
         return result.addJsonProps(object, parent);
     }

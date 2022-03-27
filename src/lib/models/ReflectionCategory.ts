@@ -54,7 +54,7 @@ export class ReflectionCategory {
             object.children.forEach((id) => {
                 const child = project.getReflectionById(id);
                 if (child) {
-                    result.children.push(child);
+                    result.children.push(child as DeclarationReflection);
                 }
             });
         }
