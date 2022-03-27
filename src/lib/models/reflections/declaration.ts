@@ -1,9 +1,14 @@
 import type * as ts from "typescript";
-import { ReferenceType, ReflectionType, Type, type SomeType } from "../types";
-import { type TraverseCallback, TraverseProperty } from "./abstract";
+import type { SomeType } from "..";
+import { ReferenceType, ReflectionType, Type } from "../types";
+import {
+    type Reflection,
+    type TraverseCallback,
+    TraverseProperty,
+} from "./abstract";
 import { ContainerReflection } from "./container";
-import type { SignatureReflection } from "./signature";
-import type { TypeParameterReflection } from "./type-parameter";
+import { SignatureReflection } from "./signature";
+import { TypeParameterReflection } from "./type-parameter";
 import type { Serializer, JSONOutput } from "../../serialization";
 
 /**
@@ -286,5 +291,80 @@ export class DeclarationReflection extends ContainerReflection {
                 serializer.toObject(type)
             ),
         };
+    }
+
+    override addJsonProps(
+        object: JSONOutput.DeclarationReflection,
+        parent: Reflection
+    ): this {
+        super.addJsonProps(object, parent);
+
+        const { project } = parent;
+
+        this.typeParameters = object.typeParameter?.map((parameter) =>
+            TypeParameterReflection.fromObject(parameter, this)
+        );
+
+        this.type =
+            object.type && (Type.fromObject(object.type, project) as SomeType);
+
+        this.signatures = object.signatures?.map((signature) =>
+            SignatureReflection.fromObject(signature, this)
+        );
+
+        this.indexSignature =
+            object.indexSignature &&
+            SignatureReflection.fromObject(object.indexSignature, this);
+
+        this.getSignature =
+            object.getSignature?.[0] &&
+            SignatureReflection.fromObject(object.getSignature[0], this);
+
+        this.setSignature =
+            object.setSignature?.[0] &&
+            SignatureReflection.fromObject(object.setSignature[0], this);
+
+        this.defaultValue = object.defaultValue;
+
+        this.overwrites =
+            object.overwrites &&
+            ReferenceType.fromObject(object.overwrites, project);
+
+        this.inheritedFrom =
+            object.inheritedFrom &&
+            ReferenceType.fromObject(object.inheritedFrom, project);
+
+        this.implementationOf =
+            object.implementationOf &&
+            ReferenceType.fromObject(object.implementationOf, project);
+
+        this.extendedTypes = object.extendedTypes?.map((type) =>
+            Type.fromObject(type, project)
+        );
+
+        this.extendedBy = object.extendedBy?.map((type) =>
+            ReferenceType.fromObject(type, project)
+        );
+
+        this.implementedTypes = object.implementedTypes?.map((type) =>
+            Type.fromObject(type, project)
+        );
+
+        this.implementedBy = object.implementedBy?.map((type) =>
+            ReferenceType.fromObject(type, project)
+        );
+
+        return this;
+    }
+
+    static fromObject(
+        object: JSONOutput.DeclarationReflection,
+        parent: Reflection
+    ): DeclarationReflection {
+        return new DeclarationReflection(
+            object.name,
+            object.kind,
+            parent
+        ).addJsonProps(object, parent);
     }
 }

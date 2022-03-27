@@ -56,6 +56,14 @@ export class SourceReference {
             character: this.character,
         };
     }
+
+    static fromObject(object: JSONSourceReference): SourceReference {
+        return new SourceReference(
+            object.fileName,
+            object.line,
+            object.character
+        );
+    }
 }
 
 /**

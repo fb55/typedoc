@@ -1,4 +1,4 @@
-import type { SomeType } from "..";
+import { type SomeType, Type } from "..";
 import { ReflectionType } from "../types";
 import { Reflection, TraverseCallback, TraverseProperty } from "./abstract";
 import type { SignatureReflection } from "./signature";
@@ -47,5 +47,20 @@ export class ParameterReflection extends Reflection {
             type: this.type && serializer.toObject(this.type),
             defaultValue: this.defaultValue,
         };
+    }
+
+    static fromObject(
+        object: JSONOutput.ParameterReflection,
+        parent: SignatureReflection
+    ): ParameterReflection {
+        const result = new ParameterReflection(
+            object.name,
+            object.kind,
+            parent
+        );
+        result.defaultValue = object.defaultValue;
+        result.type = Type.fromObject(object.type, parent) as SomeType;
+
+        return result.addJsonProps(object, parent);
     }
 }

@@ -1,6 +1,5 @@
 import { assertNever, removeIf } from "../../utils";
-import type { Reflection } from "../reflections";
-
+import type { ProjectReflection, Reflection } from "../reflections";
 import type { Serializer, JSONOutput } from "../../serialization";
 
 export type CommentDisplayPart =
@@ -36,6 +35,22 @@ function serializeDisplayPart(
             };
         }
     }
+}
+
+function deserializeDisplayPart(
+    part: JSONOutput.CommentDisplayPart,
+    project: ProjectReflection
+): CommentDisplayPart {
+    return part.kind === "inline-tag"
+        ? {
+              ...part,
+              target:
+                  typeof part.target === "number"
+                      ? // TODO: Lazily resolve this
+                        project.getReflectionById(part.target)
+                      : part.target,
+          }
+        : part;
 }
 
 /**
@@ -85,6 +100,18 @@ export class CommentTag {
             tag: this.tag,
             content: this.content.map(serializeDisplayPart),
         };
+    }
+
+    static fromObject(
+        tag: JSONOutput.CommentTag,
+        project: ProjectReflection
+    ): CommentTag {
+        return new CommentTag(
+            tag.tag,
+            tag.content.map((content) =>
+                deserializeDisplayPart(content, project)
+            )
+        );
     }
 }
 
@@ -238,5 +265,16 @@ export class Comment {
                     ? Array.from(this.modifierTags)
                     : undefined,
         };
+    }
+
+    static fromObject(
+        obj: JSONOutput.Comment,
+        project: ProjectReflection
+    ): Comment {
+        return new Comment(
+            obj.summary.map((parts) => deserializeDisplayPart(parts, project)),
+            obj.blockTags?.map((tag) => CommentTag.fromObject(tag, project)),
+            obj.modifierTags && new Set(obj.modifierTags)
+        );
     }
 }

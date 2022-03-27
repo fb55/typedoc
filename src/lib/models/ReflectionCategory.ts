@@ -1,4 +1,4 @@
-import type { DeclarationReflection } from ".";
+import type { ProjectReflection, DeclarationReflection } from ".";
 import type { Serializer, JSONOutput } from "../serialization";
 
 /**
@@ -43,5 +43,22 @@ export class ReflectionCategory {
                     ? this.children.map((child) => child.id)
                     : undefined,
         };
+    }
+
+    static fromObject(
+        object: JSONOutput.ReflectionCategory,
+        project: ProjectReflection
+    ): ReflectionCategory {
+        const result = new ReflectionCategory(object.title);
+        if (object.children) {
+            object.children.forEach((id) => {
+                const child = project.getReflectionById(id);
+                if (child) {
+                    result.children.push(child);
+                }
+            });
+        }
+
+        return result;
     }
 }

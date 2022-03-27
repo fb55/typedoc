@@ -1,6 +1,6 @@
 import { ok } from "assert";
 import type { SourceReference } from "../sources/file";
-import type { Comment } from "../comments/comment";
+import { Comment } from "../comments/comment";
 import { splitUnquotedString } from "./utils";
 import type { ProjectReflection } from "./project";
 import type { NeverIfInternal } from "../../utils";
@@ -206,6 +206,56 @@ export class ReflectionFlags extends Array<string> {
                 .filter((flag) => this[flag])
                 .map((flag) => [flag, true])
         );
+    }
+
+    static fromObject(obj: Record<string, boolean>): ReflectionFlags {
+        const flags = new ReflectionFlags();
+
+        if (obj["isPrivate"]) {
+            flags.setFlag(ReflectionFlag.Private, true);
+        }
+
+        if (obj["isProtected"]) {
+            flags.setFlag(ReflectionFlag.Protected, true);
+        }
+
+        if (obj["isPublic"]) {
+            flags.setFlag(ReflectionFlag.Public, true);
+        }
+
+        if (obj["isStatic"]) {
+            flags.setFlag(ReflectionFlag.Static, true);
+        }
+
+        if (obj["isExternal"]) {
+            flags.setFlag(ReflectionFlag.External, true);
+        }
+
+        if (obj["isOptional"]) {
+            flags.setFlag(ReflectionFlag.Optional, true);
+        }
+
+        if (obj["isRest"]) {
+            flags.setFlag(ReflectionFlag.Rest, true);
+        }
+
+        if (obj["hasExportAssignment"]) {
+            flags.setFlag(ReflectionFlag.ExportAssignment, true);
+        }
+
+        if (obj["isAbstract"]) {
+            flags.setFlag(ReflectionFlag.Abstract, true);
+        }
+
+        if (obj["isConst"]) {
+            flags.setFlag(ReflectionFlag.Const, true);
+        }
+
+        if (obj["isReadonly"]) {
+            flags.setFlag(ReflectionFlag.Readonly, true);
+        }
+
+        return flags;
     }
 }
 
@@ -535,5 +585,18 @@ export abstract class Reflection {
             originalName:
                 this.originalName !== this.name ? this.originalName : undefined,
         };
+    }
+
+    addJsonProps(object: JSONOutput.Reflection, parent: Reflection) {
+        this.id = object.id;
+        this.flags = ReflectionFlags.fromObject(object.flags);
+        if (object.comment) {
+            this.comment = Comment.fromObject(object.comment, parent);
+        }
+        if (object.originalName) {
+            this.originalName = object.originalName;
+        }
+
+        return this;
     }
 }
