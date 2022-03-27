@@ -1,7 +1,7 @@
 import type * as ts from "typescript";
 import type { Context } from "../converter";
 import { Reflection } from "./reflections/abstract";
-import type { DeclarationReflection } from "./reflections/declaration";
+import { DeclarationReflection } from "./reflections/declaration";
 import type { ProjectReflection } from "./reflections/project";
 import type { Serializer, JSONOutput } from "../serialization";
 
@@ -27,6 +27,106 @@ export abstract class Type {
     }
 
     abstract toObject(serializer: Serializer): JSONOutput.SomeType;
+
+    static fromObject(
+        object: JSONOutput.SomeType,
+        project: ProjectReflection
+    ): SomeType {
+        switch (object.type) {
+            case "array":
+                return ArrayType.fromObject(
+                    object as JSONOutput.ArrayType,
+                    project
+                );
+            case "conditional":
+                return ConditionalType.fromObject(
+                    object as JSONOutput.ConditionalType,
+                    project
+                );
+            case "indexedAccess":
+                return IndexedAccessType.fromObject(
+                    object as JSONOutput.IndexedAccessType,
+                    project
+                );
+            case "inferred":
+                return InferredType.fromObject(
+                    object as JSONOutput.InferredType
+                );
+            case "intersection":
+                return IntersectionType.fromObject(
+                    object as JSONOutput.IntersectionType,
+                    project
+                );
+            case "intrinsic":
+                return IntrinsicType.fromObject(
+                    object as JSONOutput.IntrinsicType
+                );
+            case "literal":
+                return LiteralType.fromObject(object as JSONOutput.LiteralType);
+            case "mapped":
+                return MappedType.fromObject(
+                    object as JSONOutput.MappedType,
+                    project
+                );
+            case "optional":
+                return OptionalType.fromObject(
+                    object as JSONOutput.OptionalType,
+                    project
+                );
+            case "predicate":
+                return PredicateType.fromObject(
+                    object as JSONOutput.PredicateType,
+                    project
+                );
+            case "query":
+                return QueryType.fromObject(
+                    object as JSONOutput.QueryType,
+                    project
+                );
+            case "reference":
+                return ReferenceType.fromObject(
+                    object as JSONOutput.ReferenceType,
+                    project
+                );
+            case "reflection":
+                return ReflectionType.fromObject(
+                    object as JSONOutput.ReflectionType,
+                    project
+                );
+            case "rest":
+                return RestType.fromObject(
+                    object as JSONOutput.RestType,
+                    project
+                );
+            case "template-literal":
+                return TemplateLiteralType.fromObject(
+                    object as JSONOutput.TemplateLiteralType,
+                    project
+                );
+            case "tuple":
+                return TupleType.fromObject(
+                    object as JSONOutput.TupleType,
+                    project
+                );
+            case "named-tuple-member":
+                return NamedTupleMember.fromObject(
+                    object as JSONOutput.NamedTupleMemberType,
+                    project
+                );
+            case "typeOperator":
+                return TypeOperatorType.fromObject(
+                    object as JSONOutput.TypeOperatorType,
+                    project
+                );
+            case "union":
+                return UnionType.fromObject(
+                    object as JSONOutput.UnionType,
+                    project
+                );
+            case "unknown":
+                return UnknownType.fromObject(object as JSONOutput.UnknownType);
+        }
+    }
 }
 
 export interface TypeKindMap {
@@ -215,6 +315,13 @@ export class ArrayType extends Type {
             elementType: serializer.toObject(this.elementType),
         };
     }
+
+    static override fromObject(
+        obj: JSONOutput.ArrayType,
+        project: ProjectReflection
+    ): ArrayType {
+        return new ArrayType(Type.fromObject(obj.elementType, project));
+    }
 }
 
 /**
@@ -257,6 +364,18 @@ export class ConditionalType extends Type {
             falseType: serializer.toObject(this.falseType),
         };
     }
+
+    static override fromObject(
+        obj: JSONOutput.ConditionalType,
+        project: ProjectReflection
+    ): ConditionalType {
+        return new ConditionalType(
+            Type.fromObject(obj.checkType, project),
+            Type.fromObject(obj.extendsType, project),
+            Type.fromObject(obj.trueType, project),
+            Type.fromObject(obj.falseType, project)
+        );
+    }
 }
 
 /**
@@ -279,6 +398,16 @@ export class IndexedAccessType extends Type {
             indexType: serializer.toObject(this.indexType),
             objectType: serializer.toObject(this.objectType),
         };
+    }
+
+    static override fromObject(
+        obj: JSONOutput.IndexedAccessType,
+        project: ProjectReflection
+    ): IndexedAccessType {
+        return new IndexedAccessType(
+            Type.fromObject(obj.objectType, project),
+            Type.fromObject(obj.indexType, project)
+        );
     }
 }
 
@@ -305,6 +434,10 @@ export class InferredType extends Type {
             type: this.type,
             name: this.name,
         };
+    }
+
+    static override fromObject(obj: JSONOutput.InferredType): InferredType {
+        return new InferredType(obj.name);
     }
 }
 
@@ -334,6 +467,15 @@ export class IntersectionType extends Type {
             types: this.types.map((t) => serializer.toObject(t)),
         };
     }
+
+    static override fromObject(
+        obj: JSONOutput.IntersectionType,
+        project: ProjectReflection
+    ): IntersectionType {
+        return new IntersectionType(
+            obj.types.map((type) => Type.fromObject(type, project))
+        );
+    }
 }
 
 /**
@@ -359,6 +501,10 @@ export class IntrinsicType extends Type {
             type: this.type,
             name: this.name,
         };
+    }
+
+    static override fromObject(obj: JSONOutput.IntrinsicType): IntrinsicType {
+        return new IntrinsicType(obj.name);
     }
 }
 
@@ -402,6 +548,15 @@ export class LiteralType extends Type {
             type: this.type,
             value: this.value,
         };
+    }
+
+    static override fromObject(obj: JSONOutput.LiteralType): LiteralType {
+        if (obj.value != null && typeof obj.value === "object") {
+            return new LiteralType(
+                BigInt((obj.value.negative ? "-" : "") + obj.value.value)
+            );
+        }
+        return new LiteralType(obj.value);
     }
 }
 
@@ -455,6 +610,20 @@ export class MappedType extends Type {
             nameType: this.nameType && serializer.toObject(this.nameType),
         };
     }
+
+    static override fromObject(
+        obj: JSONOutput.MappedType,
+        project: ProjectReflection
+    ): MappedType {
+        return new MappedType(
+            obj.parameter,
+            Type.fromObject(obj.parameterType, project),
+            Type.fromObject(obj.templateType, project),
+            obj.readonlyModifier,
+            obj.optionalModifier,
+            obj.nameType && Type.fromObject(obj.nameType, project)
+        );
+    }
 }
 
 /**
@@ -483,6 +652,13 @@ export class OptionalType extends Type {
             type: this.type,
             elementType: serializer.toObject(this.elementType),
         };
+    }
+
+    static override fromObject(
+        obj: JSONOutput.OptionalType,
+        project: ProjectReflection
+    ): OptionalType {
+        return new OptionalType(Type.fromObject(obj.elementType, project));
     }
 }
 
@@ -535,6 +711,17 @@ export class PredicateType extends Type {
             targetType: this.targetType && serializer.toObject(this.targetType),
         };
     }
+
+    static override fromObject(
+        obj: JSONOutput.PredicateType,
+        project: ProjectReflection
+    ): PredicateType {
+        return new PredicateType(
+            obj.name,
+            obj.asserts,
+            obj.targetType && Type.fromObject(obj.targetType, project)
+        );
+    }
 }
 
 /**
@@ -563,6 +750,13 @@ export class QueryType extends Type {
             type: this.type,
             queryType: serializer.toObject(this.queryType),
         };
+    }
+
+    static override fromObject(
+        obj: JSONOutput.QueryType,
+        project: ProjectReflection
+    ): QueryType {
+        return new QueryType(ReferenceType.fromObject(obj.queryType, project));
     }
 }
 
@@ -731,6 +925,17 @@ export class ReferenceType extends Type {
 
         return result;
     }
+
+    static override fromObject(
+        obj: JSONOutput.ReferenceType,
+        project: ProjectReflection
+    ): ReferenceType {
+        const type = new ReferenceType(obj.name, obj.id ?? -1, project);
+        type.typeArguments = obj.typeArguments?.map((t) =>
+            Type.fromObject(t, project)
+        );
+        return type;
+    }
 }
 
 /**
@@ -767,6 +972,15 @@ export class ReflectionType extends Type {
             declaration: serializer.toObject(this.declaration),
         };
     }
+
+    static override fromObject(
+        obj: JSONOutput.ReflectionType,
+        project: ProjectReflection
+    ): ReflectionType {
+        return new ReflectionType(
+            DeclarationReflection.fromObject(obj, project)
+        );
+    }
 }
 
 /**
@@ -792,6 +1006,13 @@ export class RestType extends Type {
             type: this.type,
             elementType: serializer.toObject(this.elementType),
         };
+    }
+
+    static override fromObject(
+        obj: JSONOutput.RestType,
+        project: ProjectReflection
+    ): RestType {
+        return new RestType(Type.fromObject(obj.elementType, project));
     }
 }
 
@@ -829,6 +1050,19 @@ export class TemplateLiteralType extends Type {
             ]),
         };
     }
+
+    static override fromObject(
+        obj: JSONOutput.TemplateLiteralType,
+        project: ProjectReflection
+    ): TemplateLiteralType {
+        return new TemplateLiteralType(
+            obj.head,
+            obj.tail.map(([type, text]) => [
+                Type.fromObject(type, project),
+                text,
+            ])
+        );
+    }
 }
 
 /**
@@ -860,6 +1094,15 @@ export class TupleType extends Type {
                     ? this.elements.map((t) => serializer.toObject(t))
                     : undefined,
         };
+    }
+
+    static override fromObject(
+        obj: JSONOutput.TupleType,
+        project: ProjectReflection
+    ): TupleType {
+        return new TupleType(
+            obj.elements?.map((t) => Type.fromObject(t, project)) ?? []
+        );
     }
 }
 
@@ -896,6 +1139,17 @@ export class NamedTupleMember extends Type {
             element: serializer.toObject(this.element),
         };
     }
+
+    static override fromObject(
+        obj: JSONOutput.NamedTupleMemberType,
+        project: ProjectReflection
+    ): NamedTupleMember {
+        return new NamedTupleMember(
+            obj.name,
+            obj.isOptional,
+            Type.fromObject(obj.element, project)
+        );
+    }
 }
 
 /**
@@ -926,6 +1180,16 @@ export class TypeOperatorType extends Type {
             target: serializer.toObject(this.target),
             operator: this.operator,
         };
+    }
+
+    static override fromObject(
+        obj: JSONOutput.TypeOperatorType,
+        project: ProjectReflection
+    ): TypeOperatorType {
+        return new TypeOperatorType(
+            Type.fromObject(obj.target, project),
+            obj.operator
+        );
     }
 }
 
@@ -972,6 +1236,15 @@ export class UnionType extends Type {
             types: this.types.map((t) => serializer.toObject(t)),
         };
     }
+
+    static override fromObject(
+        obj: JSONOutput.UnionType,
+        project: ProjectReflection
+    ): UnionType {
+        return new UnionType(
+            obj.types.map((t) => Type.fromObject(t, project) as SomeType)
+        );
+    }
 }
 
 /**
@@ -999,5 +1272,9 @@ export class UnknownType extends Type {
             type: this.type,
             name: this.name,
         };
+    }
+
+    static override fromObject(obj: JSONOutput.UnknownType): UnknownType {
+        return new UnknownType(obj.name);
     }
 }

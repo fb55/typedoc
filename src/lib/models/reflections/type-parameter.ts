@@ -1,4 +1,4 @@
-import type { SomeType } from "../types";
+import { Type, type SomeType } from "../types";
 import { Reflection } from "./abstract";
 import type { DeclarationReflection } from "./declaration";
 import { ReflectionKind } from "./kind";
@@ -30,5 +30,19 @@ export class TypeParameterReflection extends Reflection {
             type: this.type && serializer.toObject(this.type),
             default: this.default && serializer.toObject(this.default),
         };
+    }
+
+    static fromObject(
+        object: JSONOutput.TypeParameterReflection,
+        parent: DeclarationReflection
+    ): TypeParameterReflection {
+        const { project } = parent;
+
+        return new TypeParameterReflection(
+            object.name,
+            object.type && Type.fromObject(object.type, project),
+            object.default && Type.fromObject(object.default, project),
+            parent
+        ).addJsonProps(object, parent);
     }
 }

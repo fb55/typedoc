@@ -1,7 +1,7 @@
 import { SomeType, ReflectionType, ReferenceType } from "../types";
 import { Reflection, TraverseProperty, TraverseCallback } from "./abstract";
-import type { ParameterReflection } from "./parameter";
-import type { TypeParameterReflection } from "./type-parameter";
+import { ParameterReflection } from "./parameter";
+import { TypeParameterReflection } from "./type-parameter";
 import type { DeclarationReflection } from "./declaration";
 import type { ReflectionKind } from "./kind";
 import type { Serializer, JSONOutput } from "../../serialization";
@@ -127,5 +127,58 @@ export class SignatureReflection extends Reflection {
                 this.implementationOf &&
                 serializer.toObject(this.implementationOf),
         };
+    }
+
+    static fromObject(
+        json: JSONOutput.SignatureReflection,
+        parent: DeclarationReflection
+    ): SignatureReflection {
+        const reflection = new SignatureReflection(
+            json.name,
+            json.kind as SignatureReflection["kind"],
+            parent
+        );
+
+        if (json.typeParameter) {
+            reflection.typeParameters = json.typeParameter.map(
+                (typeParameter) =>
+                    TypeParameterReflection.fromObject(typeParameter, parent)
+            );
+        }
+
+        if (json.parameters) {
+            reflection.parameters = json.parameters.map((parameter) =>
+                ParameterReflection.fromObject(parameter, reflection)
+            );
+        }
+
+        const { project } = parent;
+
+        if (json.type) {
+            reflection.type = Type.fromObject(json.type, project);
+        }
+
+        if (json.overwrites) {
+            reflection.overwrites = ReferenceType.fromObject(
+                json.overwrites,
+                project
+            );
+        }
+
+        if (json.inheritedFrom) {
+            reflection.inheritedFrom = ReferenceType.fromObject(
+                json.inheritedFrom,
+                project
+            );
+        }
+
+        if (json.implementationOf) {
+            reflection.implementationOf = ReferenceType.fromObject(
+                json.implementationOf,
+                project
+            );
+        }
+
+        return reflection.addJsonProps(json, parent);
     }
 }

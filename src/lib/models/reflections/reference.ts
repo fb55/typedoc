@@ -119,4 +119,15 @@ export class ReferenceReflection extends DeclarationReflection {
             target: this.tryGetTargetReflection()?.id ?? -1,
         };
     }
+
+    static fromObject(
+        object: JSONReferenceReflection,
+        parent: Reflection
+    ): ReferenceReflection {
+        return new ReferenceReflection(
+            object.name,
+            object.target,
+            parent
+        ).addJsonProps(object);
+    }
 }
