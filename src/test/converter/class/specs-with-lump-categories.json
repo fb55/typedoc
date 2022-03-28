@@ -2689,9 +2689,9 @@
                   "flags": {},
                   "type": {
                     "type": "reference",
+                    "name": "Object",
                     "qualifiedName": "Object",
-                    "package": "typescript",
-                    "name": "Object"
+                    "package": "typescript"
                   }
                 },
                 {
@@ -2728,9 +2728,9 @@
                         "name": "any"
                       }
                     ],
+                    "name": "TypedPropertyDescriptor",
                     "qualifiedName": "TypedPropertyDescriptor",
-                    "package": "typescript",
-                    "name": "TypedPropertyDescriptor"
+                    "package": "typescript"
                   }
                 }
               ],
@@ -2842,9 +2842,9 @@
               ],
               "type": {
                 "type": "reference",
+                "name": "ClassDecorator",
                 "qualifiedName": "ClassDecorator",
-                "package": "typescript",
-                "name": "ClassDecorator"
+                "package": "typescript"
               }
             }
           ]
@@ -2900,9 +2900,9 @@
               ],
               "type": {
                 "type": "reference",
+                "name": "MethodDecorator",
                 "qualifiedName": "MethodDecorator",
-                "package": "typescript",
-                "name": "MethodDecorator"
+                "package": "typescript"
               }
             }
           ]
@@ -4451,12 +4451,12 @@
                       "flags": {},
                       "type": {
                         "type": "typeOperator",
-                        "operator": "keyof",
                         "target": {
                           "type": "reference",
                           "id": 205,
                           "name": "TestClass"
-                        }
+                        },
+                        "operator": "keyof"
                       }
                     }
                   ],
@@ -4527,12 +4527,12 @@
               "flags": {},
               "type": {
                 "type": "typeOperator",
-                "operator": "keyof",
                 "target": {
                   "type": "reference",
                   "id": 205,
                   "name": "TestClass"
-                }
+                },
+                "operator": "keyof"
               }
             }
           ]

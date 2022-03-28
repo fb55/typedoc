@@ -428,12 +428,12 @@
               "types": [
                 {
                   "type": "typeOperator",
-                  "operator": "keyof",
                   "target": {
                     "type": "reference",
                     "id": 33,
                     "name": "T"
-                  }
+                  },
+                  "operator": "keyof"
                 },
                 {
                   "type": "intrinsic",
@@ -502,12 +502,12 @@
             "parameter": "K",
             "parameterType": {
               "type": "typeOperator",
-              "operator": "keyof",
               "target": {
                 "type": "reference",
                 "id": 31,
                 "name": "T"
-              }
+              },
+              "operator": "keyof"
             },
             "templateType": {
               "type": "indexedAccess",
@@ -1318,14 +1318,14 @@
           ],
           "type": {
             "type": "typeOperator",
-            "operator": "readonly",
             "target": {
               "type": "array",
               "elementType": {
                 "type": "intrinsic",
                 "name": "number"
               }
-            }
+            },
+            "operator": "readonly"
           }
         },
         {
@@ -1422,12 +1422,12 @@
           ],
           "type": {
             "type": "typeOperator",
-            "operator": "keyof",
             "target": {
               "type": "reference",
               "id": 55,
               "name": "C"
-            }
+            },
+            "operator": "keyof"
           }
         },
         {
@@ -1447,11 +1447,11 @@
           ],
           "type": {
             "type": "typeOperator",
-            "operator": "unique",
             "target": {
               "type": "intrinsic",
               "name": "symbol"
-            }
+            },
+            "operator": "unique"
           },
           "defaultValue": "..."
         }

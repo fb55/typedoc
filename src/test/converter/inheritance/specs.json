@@ -41,14 +41,14 @@
                 ],
                 "blockTags": [
                   {
+                    "name": "T",
                     "tag": "@typeParam",
                     "content": [
                       {
                         "kind": "text",
                         "text": "Source interface type parameter"
                       }
-                    ],
-                    "name": "T"
+                    ]
                   }
                 ]
               },
@@ -436,9 +436,9 @@
                 "summary": [],
                 "blockTags": [
                   {
+                    "name": "SubClassA.printName",
                     "tag": "@inheritDoc",
-                    "content": [],
-                    "name": "SubClassA.printName"
+                    "content": []
                   }
                 ]
               },
