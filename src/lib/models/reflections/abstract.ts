@@ -588,14 +588,13 @@ export abstract class Reflection {
     }
 
     addJsonProps(object: JSONOutput.Reflection, parent: Reflection) {
-        this.id = object.id;
+        this.name = object.name;
+        this.kindString = object.kindString;
         this.flags = ReflectionFlags.fromObject(object.flags);
         if (object.comment) {
             this.comment = Comment.fromObject(object.comment, parent.project);
         }
-        if (object.originalName) {
-            this.originalName = object.originalName;
-        }
+        this.originalName = object.originalName ?? object.name;
 
         return this;
     }

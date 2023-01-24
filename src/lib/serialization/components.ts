@@ -19,9 +19,11 @@ export interface SerializerComponent<T> {
 
     supports(item: unknown): item is T;
 
-    toObject(
+    toObject?: (
         item: T,
         obj: Partial<ModelToObject<T>>,
         serializer: Serializer
-    ): Partial<ModelToObject<T>>;
+    ) => Partial<ModelToObject<T>>;
+
+    fromObject?: (item: T, obj: ModelToObject<T>, serializer: Serializer) => T;
 }

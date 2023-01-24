@@ -1,7 +1,8 @@
 import type { ReflectionKind } from "./reflections/kind";
-import type { ReflectionCategory } from "./ReflectionCategory";
+import { ReflectionCategory } from "./ReflectionCategory";
 import type { DeclarationReflection } from ".";
 import type { Serializer, JSONOutput } from "../serialization";
+import type { ProjectReflection } from "./reflections";
 
 /**
  * A group of reflections. All reflections in a group are of the same kind.
@@ -90,5 +91,31 @@ export class ReflectionGroup {
                       )
                     : undefined,
         };
+    }
+
+    static fromObject(
+        object: JSONOutput.ReflectionGroup,
+        project: ProjectReflection
+    ): ReflectionGroup {
+        const result = new ReflectionGroup(object.title, object.kind);
+        if (object.children) {
+            object.children.forEach((id) => {
+                const child = project.getReflectionById(id);
+                if (child) {
+                    result.children.push(child as DeclarationReflection);
+                }
+            });
+        }
+
+        if (object.categories) {
+            object.categories.forEach((category) => {
+                const child = ReflectionCategory.fromObject(category, project);
+                if (child) {
+                    result.categories!.push(child);
+                }
+            });
+        }
+
+        return result;
     }
 }

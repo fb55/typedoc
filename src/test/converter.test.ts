@@ -85,6 +85,31 @@ describe("Converter", function () {
 
                     equal(JSON.parse(data), specs);
                 });
+
+                it(`[${file}] serialized, turned back and serialized again matches specs`, function () {
+                    const specs = JSON.parse(
+                        FS.readFileSync(specsFile, "utf-8")
+                    );
+                    let data = JSON.stringify(
+                        result && app.serializer.toObject(result),
+                        null,
+                        "  "
+                    );
+                    data = data.split(normalizePath(base)).join("%BASE%");
+
+                    const parsed = JSON.parse(data);
+                    let reflection = new ProjectReflection(parsed.name);
+                    reflection = reflection.addJsonProps(parsed, reflection);
+
+                    const serialized = app.serializer.toObject(reflection);
+                    const serializedData = JSON.stringify(
+                        serialized,
+                        null,
+                        "  "
+                    );
+
+                    equal(JSON.parse(serializedData), specs);
+                });
             }
         });
     });

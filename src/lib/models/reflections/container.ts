@@ -1,9 +1,10 @@
 import { Reflection, TraverseCallback, TraverseProperty } from "./abstract";
-import type { ReflectionCategory } from "../ReflectionCategory";
-import type { ReflectionGroup } from "../ReflectionGroup";
-import type { DeclarationReflection } from "./declaration";
+import { ReflectionCategory } from "../ReflectionCategory";
+import { ReflectionGroup } from "../ReflectionGroup";
+import { DeclarationReflection } from "./declaration";
 import type { ReflectionKind } from "./kind";
 import type { Serializer, JSONOutput } from "../../serialization";
+import { SourceReference } from "../sources";
 
 export class ContainerReflection extends Reflection {
     /**
@@ -60,5 +61,32 @@ export class ContainerReflection extends Reflection {
                     ? this.sources.map((source) => serializer.toObject(source))
                     : undefined,
         };
+    }
+
+    override addJsonProps(
+        object: JSONOutput.ContainerReflection,
+        parent: Reflection
+    ): this {
+        super.addJsonProps(object, parent);
+
+        const { project } = this;
+
+        this.children = object.children?.map((child) =>
+            DeclarationReflection.fromObject(child, this)
+        );
+
+        this.groups = object.groups?.map((group) =>
+            ReflectionGroup.fromObject(group, project)
+        );
+
+        this.categories = object.categories?.map((category) =>
+            ReflectionCategory.fromObject(category, project)
+        );
+
+        this.sources = object.sources?.map((source) =>
+            SourceReference.fromObject(source)
+        );
+
+        return this;
     }
 }

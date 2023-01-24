@@ -1,5 +1,5 @@
 import { EventDispatcher } from "../utils";
-import type { ProjectReflection } from "../models";
+import { ProjectReflection, Reflection, ReflectionKind } from "../models";
 
 import { SerializeEvent, SerializeEventData } from "./events";
 import type { ModelToObject } from "./schema";
@@ -34,12 +34,15 @@ export class Serializer extends EventDispatcher {
     toObject<T extends { toObject(serializer: Serializer): ModelToObject<T> }>(
         value: T
     ): ModelToObject<T> {
-        return this.serializers
-            .filter((s) => s.supports(value))
-            .reduce(
-                (val, s) => s.toObject(value, val, this) as ModelToObject<T>,
-                value.toObject(this)
-            );
+        let val = value.toObject(this);
+
+        for (const serializer of this.serializers) {
+            if (serializer.toObject && serializer.supports(value)) {
+                val = serializer.toObject(value, val, this) as ModelToObject<T>;
+            }
+        }
+
+        return val;
     }
 
     /**
@@ -72,5 +75,12 @@ export class Serializer extends EventDispatcher {
         this.trigger(eventEnd);
 
         return project;
+    }
+
+    fromObject(value: ModelToObject<Reflection>): Reflection {
+        switch (value.kind) {
+            case ReflectionKind.Project:
+                return ProjectReflection.fromObject(value, this);
+        }
     }
 }
